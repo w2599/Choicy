@@ -6,7 +6,10 @@
     <dict>
         <key>Bundles</key>
         <array>
-            <string>com.apple.Security</string>
+            <string>com.roothide.manager</string>
+            <string>com.roothide.patcher</string>
+            <string>com.amywhile.Aemulo</string>
+            <string>cn.zqbb.editpre</string>
         </array>
     </dict>
 	<key>IsTweakManager</key>

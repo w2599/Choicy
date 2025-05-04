@@ -26,7 +26,7 @@
 #include <libgen.h>
 #include <os/log.h>
 #include <dlfcn.h>
-#include <libroot.h>
+#include <roothide.h>
 #include <mach-o/dyld.h>
 #include <mach-o/getsect.h>
 #include <ptrauth.h>
@@ -47,7 +47,7 @@ extern xpc_object_t xpc_create_from_plist(const void *buf, size_t len);
 #define kEnvDeniedTweaksOverride "CHOICY_DENIED_TWEAKS_OVERRIDE"
 #define kEnvAllowedTweaksOverride "CHOICY_ALLOWED_TWEAKS_OVERRIDE"
 #define kEnvOverwriteGlobalConfigurationOverride "CHOICY_OVERWRITE_GLOBAL_TWEAK_CONFIGURATION_OVERRIDE"
-#define kChoicyPrefsPlistPath JBROOT_PATH("/var/mobile/Library/Preferences/com.opa334.choicyprefs.plist")
+#define kChoicyPrefsPlistPath jbroot("/var/mobile/Library/Preferences/com.opa334.choicyprefs.plist")
 #define kChoicyPrefsKeyGlobalDeniedTweaks "globalDeniedTweaks"
 #define kChoicyPrefsKeyAppSettings "appSettings"
 #define kChoicyPrefsKeyDaemonSettings "daemonSettings"
@@ -447,12 +447,12 @@ void *dyld_dlopen_from_hook(const void *dyld, const char *path, int mode, void *
 const struct mach_header *find_tweak_loader_mach_header(const char **pathOut)
 {
 	const char *tweakLoaderPaths[] = {
-		JBROOT_PATH("/usr/lib/TweakLoader.dylib"),													 // Ellekit (Rootless Standard)
-		JBROOT_PATH("/usr/lib/substitute-loader.dylib"),											 // Substitute
-		JBROOT_PATH("/usr/lib/TweakInject.dylib"),													 // libhooker
-		JBROOT_PATH("/usr/lib/substrate/SubstrateLoader.dylib"),									 // Substrate
-		JBROOT_PATH("/Library/Frameworks/CydiaSubstrate.framework/Libraries/SubstrateLoader.dylib"), // Substrate (Older versions)
-		JBROOT_PATH("/usr/lib/Sonar/libsonar.dylib"),												 // Sonar
+		jbroot("/usr/lib/TweakLoader.dylib"),													 // Ellekit (Rootless Standard)
+		jbroot("/usr/lib/substitute-loader.dylib"),											 // Substitute
+		jbroot("/usr/lib/TweakInject.dylib"),													 // libhooker
+		jbroot("/usr/lib/substrate/SubstrateLoader.dylib"),									 // Substrate
+		jbroot("/Library/Frameworks/CydiaSubstrate.framework/Libraries/SubstrateLoader.dylib"), // Substrate (Older versions)
+		jbroot("/usr/lib/Sonar/libsonar.dylib"),												 // Sonar
 	};
 
 	bool foundTweakLoader = false;

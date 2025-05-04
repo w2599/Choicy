@@ -42,7 +42,7 @@
 + (NSArray *)possibleInjectionLibrariesPaths
 {
 	// /Library and /usr always gets converted to rootless paths on xina, so this workaround is neccessary
-	return @[[@"/" stringByAppendingString:@"Library/MobileSubstrate/DynamicLibraries"], [@"/" stringByAppendingString:@"usr/lib/TweakInject"], @"/var/jb/Library/MobileSubstrate/DynamicLibraries", @"/var/jb/usr/lib/TweakInject"];
+	return @[jbroot(@"/Library/MobileSubstrate/DynamicLibraries"), jbroot(@"/usr/lib/TweakInject")];
 }
 
 + (NSString *)injectionLibrariesPath
@@ -61,7 +61,7 @@
 	if (![path.pathExtension isEqualToString:@"dylib"]) return NO;
 
 	for (NSString *possibleInjectionLibrariesPath in [self possibleInjectionLibrariesPaths]) {
-		if ([path hasPrefix:possibleInjectionLibrariesPath]) return YES;
+		if([possibleInjectionLibrariesPath hasSuffix:[path stringByDeletingLastPathComponent]]) return YES;
 	}
 
 	return NO;
@@ -108,7 +108,7 @@
 
 	NSString *bundleID = [NSBundle bundleWithPath:executablePath.stringByDeletingLastPathComponent].bundleIdentifier;
 	NSString *executableName = executablePath.lastPathComponent;
-	NSSet *linkedFrameworks = [[CHPMachoParser sharedInstance] frameworkBundleIdentifiersForMachoAtPath:executablePath];
+	// NSSet *linkedFrameworks = [[CHPMachoParser sharedInstance] frameworkBundleIdentifiersForMachoAtPath:executablePath];
 
 	NSMutableArray *tweakListForExecutable = [NSMutableArray new];
 	[self.tweakList enumerateObjectsUsingBlock:^(CHPTweakInfo *tweakInfo, NSUInteger idx, BOOL *stop) {
@@ -119,13 +119,29 @@
 			}
 		}
 
+		if ([executablePath containsString:@".app/"]) {
+ 			__block BOOL wantAdd = NO;
+ 
+ 			[tweakInfo.filterBundles enumerateObjectsUsingBlock:^(NSString *bundleID, NSUInteger idx, BOOL *stop) {
+ 				if ([bundleID hasPrefix:@"com.apple.UIKit"] || [bundleID hasPrefix:@"com.apple.TextInput"]) {
+ 					wantAdd = YES;
+ 					*stop = YES;
+ 				}
+ 			}];
+ 
+ 			if(wantAdd) {
+ 				[tweakListForExecutable addObject:tweakInfo];
+ 				return;
+ 			}
+ 		}
+
 		if (executableName) {
 			if ([tweakInfo.filterExecutables containsObject:executableName]) {
 				[tweakListForExecutable addObject:tweakInfo];
 				return;
 			}
 		}
-		
+		/*
 		if (linkedFrameworks) {
 			[linkedFrameworks enumerateObjectsUsingBlock:^(NSString *frameworkID, BOOL *stop) {
 				if ([tweakInfo.filterBundles containsObject:frameworkID]) {
@@ -134,6 +150,7 @@
 				}
 			}];
 		}
+		*/
 	}];
 
 	return tweakListForExecutable;
